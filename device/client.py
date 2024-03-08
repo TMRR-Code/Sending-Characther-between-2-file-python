@@ -5,20 +5,19 @@
 
 import socket
 
-# Inisialisasi socket
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# Inisialisasi socket UDP
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 
-# Hubungkan ke server dengan IP dan port tertentu
-client_socket.connect(('192.168.43.209', 12345))
+# Aktifkan opsi broadcast
+client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
-# Kirim pesan ke server
+# Bind ke semua alamat IP dan port tertentu
+client_socket.bind(('0.0.0.0', 12345))
+
+# Dengarkan pesan broadcast
 while True:
-    message = input("Masukkan pesan: ")
-    client_socket.sendall(message.encode())
-    if message.lower() == 'exit':
-        break
-    data = client_socket.recv(1024)
-    print("Pesan dari server:", data.decode())
+    data, address = client_socket.recvfrom(1024)
+    print("Pesan dari", address, ":", data.decode())
 
-# Tutup koneksi
+# Tutup socket
 client_socket.close()
